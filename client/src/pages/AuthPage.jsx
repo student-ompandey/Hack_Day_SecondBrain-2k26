@@ -12,7 +12,7 @@ export default function AuthPage({ isLogin }) {
   };
 
   return (
-    <div className="min-h-screen w-full relative flex items-center justify-center bg-bg overflow-hidden text-textMain selection:bg-primary/30">
+    <div className="min-h-screen w-full relative flex items-center justify-center bg-[#050505] overflow-hidden text-white font-sans selection:bg-[#FF6B00]/30">
       {/* Mesh Gradient Background */}
       <div className="absolute inset-0 z-0 opacity-40">
         <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-primary/20 rounded-full blur-[150px] mix-blend-screen" />

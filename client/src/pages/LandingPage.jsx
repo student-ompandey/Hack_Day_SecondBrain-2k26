@@ -27,11 +27,39 @@ export default function LandingPage() {
       exit={{ opacity: 0, transition: { duration: 0.3 } }} 
       className="min-h-screen bg-[#050505] text-white selection:bg-[#FF6B00]/30 overflow-x-hidden font-sans custom-scrollbar"
     >
-      {/* Shared Background Effect matching ProfilePage */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-0 right-1/4 w-[800px] h-[800px] rounded-full bg-radial-gradient from-[#FF6B00]/10 via-[#FF6B00]/0 to-transparent blur-[120px] opacity-40 mix-blend-screen" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-radial-gradient from-[#FF6B00]/5 via-transparent to-transparent blur-[100px] mix-blend-screen" />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
+      {/* Ambient Animated Lighting Background */}
+      <div className="fixed inset-0 pointer-events-none z-0 bg-[#050505] overflow-hidden">
+        {/* Full-fill digital grid */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:linear-gradient(to_bottom,black_60%,transparent_100%)]"></div>
+        
+        {/* Animated Neon Glowing Orbs */}
+        <motion.div 
+          animate={{ 
+            x: [0, 100, -50, 0], 
+            y: [0, -100, 50, 0] 
+          }}
+          transition={{ 
+            duration: 20, 
+            repeat: Infinity,
+            ease: "linear" 
+          }}
+          className="absolute top-[-10%] right-[-5%] w-[800px] h-[800px] rounded-full bg-radial-gradient from-[#FF6B00]/15 via-[#FF6B00]/0 to-transparent blur-[120px] mix-blend-screen" 
+        />
+        <motion.div 
+          animate={{ 
+            x: [0, -150, 100, 0], 
+            y: [0, 150, -50, 0] 
+          }}
+          transition={{ 
+            duration: 25, 
+            repeat: Infinity,
+            ease: "linear" 
+          }}
+          className="absolute bottom-[-10%] left-[-10%] w-[1000px] h-[1000px] rounded-full bg-radial-gradient from-[#FFA057]/10 via-[#FF6B00]/0 to-transparent blur-[150px] mix-blend-screen" 
+        />
+        
+        {/* Grainy Noise Overlay */}
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.15] brightness-100 contrast-150 mix-blend-overlay"></div>
       </div>
 
       {/* Navbar Structure */}
@@ -42,22 +70,22 @@ export default function LandingPage() {
         className="fixed top-0 inset-x-0 h-20 z-50 backdrop-blur-xl bg-[#050505]/60 border-b border-white/5 transition-all"
       >
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 font-bold text-xl tracking-wide group">
-            <div className="p-2 rounded-xl bg-white/5 border border-white/10 group-hover:border-[#FF6B00]/50 group-hover:shadow-[0_0_15px_-3px_rgba(255,107,0,0.8)] transition-all">
-              <BrainCircuit className="w-5 h-5 text-[#FF6B00]" />
-            </div>
+          <Link to="/" className="font-extrabold text-2xl tracking-tighter text-white uppercase">
             SecondBrain
           </Link>
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
-            <a href="#how-it-works" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">How it works</a>
-            <a href="#features" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Features</a>
-            <div className="w-px h-6 bg-white/10" />
-            <Link to="/login" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Log In</Link>
-            <Link to="/signup" className="relative overflow-hidden group px-5 py-2.5 rounded-full bg-[#FF6B00] hover:bg-[#FF6B00]/90 text-black font-bold text-sm transition-all shadow-[0_0_20px_-5px_rgba(255,107,0,0.8)] hover:scale-105 active:scale-95">
-              <span className="relative z-10">Join for Free</span>
-              <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:animate-shine z-0" />
+            <a href="#how-it-works" className="text-sm font-bold text-[#FF6B00] border-b-2 border-[#FF6B00] pb-1 uppercase tracking-wide">Pipeline</a>
+            <a href="#features" className="text-sm font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-wide">Features</a>
+            <a href="#mindmaps" className="text-sm font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-wide">Mindmaps</a>
+            <a href="#dataviz" className="text-sm font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-wide">Data Viz</a>
+          </div>
+
+          <div className="hidden md:flex items-center gap-6">
+            <Link to="/login" className="text-sm font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-wide">Login</Link>
+            <Link to="/signup" className="px-6 py-2.5 bg-gradient-to-r from-[#FFA057] to-[#FF6B00] text-black font-bold text-sm uppercase tracking-wide transition-all hover:opacity-90">
+              Get Started
             </Link>
           </div>
 
@@ -94,30 +122,16 @@ export default function LandingPage() {
       <main className="relative z-10 w-full pt-32 pb-20">
         
         {/* HERO SECTION */}
-        {/* HERO SECTION */}
-        <section className="px-6 max-w-5xl mx-auto text-center flex flex-col items-center pt-10 lg:pt-20">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#121212]/80 border border-white/10 text-xs font-semibold text-white mb-8 shadow-2xl backdrop-blur-md"
-          >
-            <span className="bg-[#FF6B00] text-black px-2 py-0.5 rounded-full text-[10px] tracking-widest uppercase font-black">New v2.0</span>
-            <span className="text-gray-400">Now with YouTube Link analysis</span>
-            <ArrowRight className="w-3 h-3 text-gray-400" />
-          </motion.div>
-
+        <section className="px-6 max-w-5xl mx-auto text-center flex flex-col items-center pt-20 lg:pt-32">
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-6xl md:text-[7.5rem] font-black tracking-tight mb-4 leading-[0.9] md:leading-[0.85]"
+            className="text-7xl md:text-[8rem] font-bold tracking-tighter mb-6 leading-[0.9] md:leading-[0.85]"
           >
-            Your Brain, <br className="hidden md:block"/>
-            <span className="inline-block relative">
-              <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-[#FF6B00] via-[#FFA057] to-[#FF6B00] animate-shimmer bg-[length:200%_auto]">
-                Augmented.
-              </span>
+            <span className="text-white">Your Brain,</span> <br className="hidden md:block"/>
+            <span className="text-[#FF6B00]">
+              Augmented.
             </span>
           </motion.h1>
 
@@ -125,41 +139,43 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-lg md:text-xl text-gray-400 max-w-2xl leading-relaxed mb-12 tracking-wide font-medium"
+            className="text-lg md:text-xl text-[#FFA057]/70 font-medium max-w-3xl leading-relaxed mb-16 tracking-wide"
           >
-            Stop wasting hours re-studying. Feed your messy notes, lectures, and PDFs into our Gemini Engine and automatically build a Spaced Repetition track for 100% recall.
+            Ingest knowledge instantly. Transform linear video into hyper-linked cognitive architecture. The monolith awaits your input.
           </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="w-full max-w-xl mx-auto relative group"
+            className="w-full max-w-3xl mx-auto relative group"
           >
-            <div className="absolute -inset-1 bg-[#FF6B00]/10 rounded-3xl blur-xl opacity-60 animate-pulse transition-all duration-500 group-focus-within:opacity-100 group-focus-within:bg-[#FF6B00]/30 group-focus-within:blur-2xl" />
-            <form onSubmit={handleDemoSubmit} className="relative flex items-center bg-[#121212]/80 backdrop-blur-xl border border-white/10 group-focus-within:border-[#FF6B00]/70 rounded-2xl p-2 shadow-2xl transition-colors duration-300">
-              <div className="flex-1 flex items-center px-4 gap-3">
-                <Video className="w-5 h-5 text-gray-500 group-focus-within:text-[#FF6B00] transition-colors" />
+            <div className="absolute -inset-1 bg-[#FF6B00]/10 blur-xl opacity-60 transition-all duration-500 group-focus-within:opacity-100 group-focus-within:bg-[#FF6B00]/20 group-focus-within:blur-2xl" />
+            <form onSubmit={handleDemoSubmit} className="relative flex items-stretch bg-[#111111]/90 backdrop-blur-xl border border-white/5 overflow-hidden transition-colors duration-300">
+              <div className="flex-1 flex items-center px-6 gap-4">
+                <Copy className="w-5 h-5 text-gray-500" />
                 <input 
                   type="text" 
                   value={demoInput}
                   onChange={(e) => setDemoInput(e.target.value)}
-                  placeholder="Paste a YouTube link or PDF URL..."
+                  placeholder="Paste a YouTube link..."
                   disabled={isDemoLoading}
-                  className="w-full bg-transparent border-none outline-none text-sm text-white placeholder-gray-500 font-medium"
+                  className="w-full bg-transparent border-none outline-none text-base text-white placeholder-gray-500 font-medium py-5"
                 />
               </div>
               <button 
                 type="submit" 
                 disabled={isDemoLoading}
-                className="px-6 py-3 rounded-xl bg-white text-black font-bold tracking-wide text-sm transition-all hover:bg-gray-200 active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                className="px-8 bg-gradient-to-r from-[#FFA057] to-[#FF6B00] text-black font-bold uppercase tracking-wider text-sm transition-all hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isDemoLoading ? (
                   <>
-                    <Zap className="w-4 h-4 animate-pulse text-[#FF6B00]" /> Scanning...
+                    <Zap className="w-4 h-4 animate-pulse" /> SYNCING
                   </>
                 ) : (
-                  <>Try Quick Demo</>
+                  <>
+                    SYNC <Zap className="w-4 h-4" />
+                  </>
                 )}
               </button>
             </form>
@@ -242,6 +258,7 @@ export default function LandingPage() {
 
             {/* Card 3 */}
             <motion.div 
+              id="mindmaps"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
@@ -283,7 +300,7 @@ export default function LandingPage() {
         </section>
 
         {/* SECTION 4: MEMORY TIMELINE GRAPH */}
-        <section className="px-6 max-w-5xl mx-auto mt-40">
+        <section id="dataviz" className="px-6 max-w-5xl mx-auto mt-40">
           <motion.div 
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}

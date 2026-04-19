@@ -15,7 +15,7 @@ export default {
         textMuted: '#94a3b8',
       },
       fontFamily: {
-        sans: ['Outfit', 'sans-serif'],
+        sans: ['Space Grotesk', 'sans-serif'],
       },
       keyframes: {
         shimmer: {
