@@ -260,7 +260,8 @@ function QuizSection({ quiz, setQuizActivity }) {
     
     setIsAnalyzing(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://hack-day-secondbrain-2k26-3.onrender.com'}/analyze-quiz`, {
+      const apiUrl = import.meta.env.DEV ? 'http://localhost:5000' : 'https://hack-day-secondbrain-2k26-3.onrender.com';
+      const response = await fetch(`${apiUrl}/analyze-quiz`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ incorrectQuestions })
@@ -452,7 +453,8 @@ function ChatAssistant({ context, setChatActivity }) {
     setInputValue("");
     
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://hack-day-secondbrain-2k26-3.onrender.com'}/ask-doubt`, {
+      const apiUrl = import.meta.env.DEV ? 'http://localhost:5000' : 'https://hack-day-secondbrain-2k26-3.onrender.com';
+      const response = await fetch(`${apiUrl}/ask-doubt`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: newMessages, context })

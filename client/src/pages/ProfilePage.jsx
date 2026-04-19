@@ -12,7 +12,8 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://hack-day-secondbrain-2k26-3.onrender.com'}/api/memories`);
+        const apiUrl = import.meta.env.DEV ? 'http://localhost:5000' : 'https://hack-day-secondbrain-2k26-3.onrender.com';
+        const response = await fetch(`${apiUrl}/api/memories`);
         const data = await response.json();
         setMemories(data);
       } catch (err) {

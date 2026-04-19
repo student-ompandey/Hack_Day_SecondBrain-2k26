@@ -15,8 +15,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Health Check Route for Render
+// Health Check & Test Routes
 app.get('/health', (req, res) => res.status(200).send('OK'));
+app.get('/test', (req, res) => res.status(200).send('Backend working'));
 
 // Setup Multer for Memory Storage
 const upload = multer({ storage: multer.memoryStorage() });
@@ -37,6 +38,7 @@ if (!process.env.GEMINI_API_KEY) {
   console.error("FATAL ERROR: GEMINI_API_KEY is not defined.");
   process.exit(1);
 }
+console.log("Gemini API Key Loaded:", !!process.env.GEMINI_API_KEY ? "Success" : "Failed");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 app.post('/analyze', upload.single('file'), async (req, res) => {
@@ -58,7 +60,7 @@ app.post('/analyze', upload.single('file'), async (req, res) => {
 
     // Determine the model
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-flash",
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -141,13 +143,18 @@ app.post('/analyze', upload.single('file'), async (req, res) => {
     const result = await model.generateContent(promptParts);
     const responseText = result.response.text();
     
-    // Parse the JSON representation
-    const jsonOutput = JSON.parse(responseText);
+    // Robustly extract JSON block
+    const match = responseText.match(/\{[\s\S]*\}/);
+    if (!match) {
+      throw new Error("AI did not return a valid JSON object.");
+    }
+    const cleanJsonString = match[0];
+    const jsonOutput = JSON.parse(cleanJsonString);
 
     res.status(200).json(jsonOutput);
   } catch (error) {
     console.error('Error analyzing content:', error);
-    res.status(500).json({ error: 'Failed to securely process with AI.' });
+    res.status(500).json({ error: error.message || 'Failed to securely process with AI.' });
   }
 });
 
@@ -188,7 +195,7 @@ app.post('/analyze-quiz', async (req, res) => {
     }
 
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-flash",
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -211,7 +218,12 @@ app.post('/analyze-quiz', async (req, res) => {
 
     const promptText = `Analyze these incorrect quiz questions to determine the user's weak spots:\n\n${JSON.stringify(incorrectQuestions, null, 2)}`;
     const result = await model.generateContent(promptText);
-    const jsonOutput = JSON.parse(result.response.text());
+    const responseText = result.response.text();
+    
+    const match = responseText.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error("Diagnostic array returned invalid block.");
+    
+    const jsonOutput = JSON.parse(match[0]);
 
     res.status(200).json(jsonOutput);
   } catch (error) {
@@ -229,7 +241,7 @@ app.post('/ask-doubt', async (req, res) => {
       return res.status(400).json({ error: 'Message history is required' });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     
     const formattedHistory = messages.slice(0, -1).map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`).join('\n');
     const currentQuestion = messages[messages.length - 1].content;

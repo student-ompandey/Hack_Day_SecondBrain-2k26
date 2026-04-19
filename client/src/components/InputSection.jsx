@@ -45,18 +45,33 @@ export default function InputSection() {
       if (file) formData.append('file', file);
       formData.append('explainLevel', explainLevel);
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://hack-day-secondbrain-2k26-3.onrender.com'}/analyze`, {
+      const apiUrl = import.meta.env.DEV ? 'http://localhost:5000' : 'https://hack-day-secondbrain-2k26-3.onrender.com';
+      const response = await fetch(`${apiUrl}/analyze`, {
         method: 'POST',
         // Note: Do not set Content-Type header manually when sending FormData,
         // the browser will set it to multipart/form-data with the correct boundary!
         body: formData
       });
       const data = await response.json();
-      data.explainLevel = explainLevel; // Piggyback explain level for DNA payload
-      setResult(data);
-      console.log("Gemini Data:", data);
+      if (!response.ok || data.error) {
+        setResult({
+          summary: [`Backend Error: ${data.error || "Unknown structure failure."}`],
+          keyConcepts: [],
+          quiz: [],
+          mindmap: [{ node: "Error", children: ["Check Backend Logs"] }]
+        });
+      } else {
+        data.explainLevel = explainLevel;
+        setResult(data);
+      }
     } catch (error) {
       console.error("Error processing with AI:", error);
+      setResult({
+        summary: ["Network Error: Unable to reach the backend service."],
+        keyConcepts: [],
+        quiz: [],
+        mindmap: []
+      });
     } finally {
       setIsProcessing(false);
     }
