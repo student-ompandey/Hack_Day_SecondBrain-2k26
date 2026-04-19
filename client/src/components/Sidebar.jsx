@@ -1,88 +1,103 @@
 import React, { useEffect, useState } from 'react';
-import { Home, Folder, Star, Settings, Layout, BrainCircuit, Calendar } from 'lucide-react';
+import { Home, Folder, Star, Settings, Layout, BrainCircuit, Calendar, LayoutDashboard, FolderOpen, UserCircle } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { getSavedMemories } from '../lib/memory';
 import { format } from 'date-fns';
+import { useNavigate, useLocation } from 'react-router-dom';
+import SettingsModal from './SettingsModal';
 
 export default function Sidebar() {
-  const [memories, setMemories] = useState([]);
-
-  useEffect(() => {
-    // Initial fetch
-    setMemories(getSavedMemories());
-
-    // Listen for custom event triggered by MemoryService
-    const handleMemoryUpdate = () => {
-      setMemories(getSavedMemories());
-    };
-    
-    window.addEventListener('memory-updated', handleMemoryUpdate);
-    return () => window.removeEventListener('memory-updated', handleMemoryUpdate);
-  }, []);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const items = [
-    { icon: Home, label: 'Home', active: true },
-    { icon: Folder, label: 'Projects' },
-    { icon: Star, label: 'Favorites' },
-    { icon: Layout, label: 'Dashboard' },
+    { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
+    { icon: UserCircle, label: 'Profile', path: '/profile' },
+    { icon: Star, label: 'Favorites', path: '#' },
+    { icon: FolderOpen, label: 'Categories', path: '#' },
   ];
 
+  const handleNav = (path) => {
+    if (path && path !== '#') {
+      navigate(path);
+    }
+  };
+
   return (
-    <aside className="w-64 bg-surface h-screen border-r border-gray-800 flex flex-col items-start px-4 py-6 overflow-hidden">
-      <div className="flex items-center gap-3 w-full mb-8 px-2 text-primary font-bold text-xl tracking-wide">
-        <div className="bg-primary/20 p-2 rounded-xl">
-          <div className="w-4 h-4 rounded-full bg-primary animate-pulse" />
-        </div>
-        SecondBrain
-      </div>
-
-      <nav className="w-full space-y-2 mb-8">
-        {items.map((item, idx) => (
-          <button
-            key={idx}
-            className={cn(
-              "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border border-transparent",
-              item.active 
-                ? "bg-primary/10 text-primary border-primary/20 shadow-[0_0_15px_-3px_rgba(255,107,107,0.1)]" 
-                : "text-textMuted hover:text-textMain hover:bg-white/5"
-            )}
-          >
-            <item.icon className="w-4 h-4" />
-            {item.label}
-          </button>
-        ))}
-      </nav>
-
-      {/* Memory Section */}
-      <div className="flex-1 w-full overflow-y-auto pr-2 custom-scrollbar">
-        <div className="flex items-center gap-2 px-2 text-xs font-semibold text-textMuted uppercase tracking-wider mb-3">
-          <BrainCircuit className="w-4 h-4 text-blue-400" />
-          Study Schedule
-        </div>
+    <>
+      {/* Desktop Floating Dock */}
+      <aside className="hidden sm:flex fixed flex-col left-4 top-4 bottom-4 w-16 hover:w-64 bg-black/70 backdrop-blur-xl border border-[#1A1A1A] p-3 z-50 transition-all duration-500 rounded-3xl group shadow-[0_0_30px_-5px_rgba(255,77,0,0.1)] overflow-hidden">
         
-        {memories.length === 0 ? (
-          <div className="px-2 text-sm text-textMuted/60 italic">No saved memories yet.</div>
-        ) : (
-          <div className="space-y-2">
-            {memories.map((mem) => (
-              <div key={mem.id} className="w-full bg-white/5 border border-white/5 rounded-lg p-3 hover:bg-white/10 transition-colors cursor-pointer group">
-                <h4 className="text-sm font-medium text-textMain/90 truncate">{mem.title}</h4>
-                <div className="flex items-center gap-1.5 mt-2 text-xs text-blue-400/80 group-hover:text-blue-400">
-                  <Calendar className="w-3 h-3" />
-                  <span>Review {format(new Date(mem.dates.review1), 'MMM d')}</span>
-                </div>
-              </div>
-            ))}
+        {/* Brand */}
+        <div className="flex items-center gap-4 px-2.5 mb-10 mt-2 whitespace-nowrap">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30 shrink-0">
+            <BrainCircuit className="w-5 h-5 text-primary" />
           </div>
-        )}
-      </div>
+          <span className="tracking-tight text-white font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-300">SecondBrain</span>
+        </div>
 
-      <div className="w-full mt-4 pt-4 border-t border-white/5">
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-textMuted hover:text-textMain hover:bg-white/5 transition-all">
-          <Settings className="w-4 h-4" />
-          Settings
-        </button>
-      </div>
-    </aside>
+        {/* Main Navigation */}
+        <nav className="space-y-3 flex-1">
+          {items.map((item, idx) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <button 
+                key={idx}
+                onClick={() => handleNav(item.path)}
+                title={item.label}
+                className={cn(
+                  "flex items-center gap-4 p-3 rounded-xl transition-all outline-none whitespace-nowrap w-full group/btn",
+                  isActive
+                    ? "bg-gradient-to-r from-primary/20 to-transparent text-primary shadow-[inset_2px_0_0_0_#FF6B00]" 
+                    : "text-textMuted hover:text-white hover:bg-white/5",
+                  item.path === '#' && "opacity-50 cursor-not-allowed"
+                )}
+              >
+                <item.icon className="w-5 h-5 shrink-0" />
+                <span className="text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">{item.label}</span>
+              </button>
+            )
+          })}
+        </nav>
+
+        {/* Bottom Actions */}
+        <div className="mt-4 pt-4 border-t border-white/5 space-y-3">
+           <button 
+            onClick={() => setSettingsOpen(true)}
+            title="Settings"
+            className="flex items-center gap-4 p-3 rounded-xl text-textMuted hover:text-white hover:bg-white/5 transition-all outline-none whitespace-nowrap w-full group/btn"
+          >
+            <Settings className="w-5 h-5 shrink-0" />
+            <span className="text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">Settings</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* Mobile Bottom Nav */}
+      <aside className="sm:hidden fixed bottom-4 left-4 right-4 h-16 bg-black/70 backdrop-blur-xl border border-[#1A1A1A] flex flex-row justify-around items-center z-50 rounded-2xl shadow-[0_0_30px_-5px_rgba(255,77,0,0.1)] px-2">
+         {items.map((item, idx) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <button 
+                key={idx}
+                onClick={() => handleNav(item.path)}
+                className={cn(
+                  "p-3 rounded-xl transition-all",
+                  isActive ? "text-primary" : "text-textMuted",
+                  item.path === '#' && "opacity-50"
+                )}
+              >
+                <item.icon className="w-5 h-5" />
+              </button>
+            )
+          })}
+          <button onClick={() => setSettingsOpen(true)} className="p-3 text-textMuted rounded-xl">
+            <Settings className="w-5 h-5" />
+          </button>
+      </aside>
+
+      <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
+    </>
   );
 }

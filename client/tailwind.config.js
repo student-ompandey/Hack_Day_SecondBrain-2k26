@@ -7,14 +7,29 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: '#0F1115',
-        surface: '#1A1D23',
-        primary: '#FF6B6B',
+        bg: '#0a0a0a',
+        surface: '#111111',
+        primary: '#FF6B00',
+        accent: '#FF9000',
         textMain: '#F8F9FA',
-        textMuted: '#A0AEC0',
+        textMuted: '#94a3b8',
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans: ['Outfit', 'sans-serif'],
+      },
+      keyframes: {
+        shimmer: {
+          '0%': { backgroundPosition: '200% center' },
+          '100%': { backgroundPosition: '-200% center' },
+        },
+        shine: {
+          '0%': { left: '-100%' },
+          '100%': { left: '200%' },
+        }
+      },
+      animation: {
+        shimmer: 'shimmer 8s linear infinite',
+        shine: 'shine 3s infinite',
       }
     },
   },

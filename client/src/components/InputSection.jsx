@@ -8,8 +8,19 @@ export default function InputSection() {
   const [file, setFile] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState(null);
+  const [explainLevel, setExplainLevel] = useState('Intermediate');
   
   const fileInputRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const handleReset = () => {
+      setContent('');
+      setFile(null);
+      setResult(null);
+    };
+    window.addEventListener('reset-dashboard', handleReset);
+    return () => window.removeEventListener('reset-dashboard', handleReset);
+  }, []);
 
   const handleFileSelect = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -32,6 +43,7 @@ export default function InputSection() {
       const formData = new FormData();
       if (content.trim()) formData.append('content', content);
       if (file) formData.append('file', file);
+      formData.append('explainLevel', explainLevel);
 
       const response = await fetch('http://localhost:5000/analyze', {
         method: 'POST',
@@ -40,6 +52,7 @@ export default function InputSection() {
         body: formData
       });
       const data = await response.json();
+      data.explainLevel = explainLevel; // Piggyback explain level for DNA payload
       setResult(data);
       console.log("Gemini Data:", data);
     } catch (error) {
@@ -51,18 +64,29 @@ export default function InputSection() {
 
   return (
     <div className="w-full flex flex-col items-center pb-24">
-      <div className="w-full max-w-4xl bg-surface border border-gray-800 rounded-2xl p-4 shadow-xl shadow-black/40 z-20 relative">
-        <div className="relative">
+      <div className="w-full max-w-4xl bg-[#0a0a0a]/50 backdrop-blur-3xl border border-[#1A1A1A] rounded-3xl p-5 shadow-[0_0_40px_-15px_rgba(255,107,0,0.15)] group relative z-20 hover:shadow-[0_0_50px_-10px_rgba(255,107,0,0.2)] transition-all duration-500">
+        <div className="flex justify-end mb-1 px-1">
+          <select 
+            value={explainLevel} 
+            onChange={(e) => setExplainLevel(e.target.value)}
+            className="bg-black/40 border border-white/5 text-xs font-semibold text-textMuted rounded-xl px-3 py-1.5 focus:outline-none focus:border-primary/50 transition-colors shadow-inner"
+          >
+            <option value="Beginner">Level: Beginner</option>
+            <option value="Intermediate">Level: Intermediate</option>
+            <option value="Expert">Level: Expert</option>
+          </select>
+        </div>
+        <div className="relative mt-1">
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Paste your notes, ideas, or drop files here to build your SecondBrain..."
-            className="w-full h-40 bg-transparent text-textMain placeholder-textMuted/60 resize-none outline-none p-2 text-lg leading-relaxed focus:ring-0"
+            placeholder="Drop your notes, links, or ideas here to expand your SecondBrain..."
+            className="w-full h-24 bg-transparent text-white placeholder-textMuted/40 resize-none outline-none p-2 text-lg font-medium leading-relaxed focus:ring-0 custom-scrollbar"
           />
           {file && (
-            <div className="absolute bottom-2 left-2 flex items-center gap-2 bg-primary/20 text-primary px-3 py-1.5 rounded-lg text-sm font-medium animate-in fade-in zoom-in duration-300">
+            <div className="absolute bottom-2 left-2 flex items-center gap-2 bg-gradient-to-r from-primary/20 to-transparent border border-primary/30 text-primary px-4 py-2 rounded-xl text-sm font-bold animate-in fade-in zoom-in duration-300 backdrop-blur-md">
               <span className="truncate max-w-[200px]">{file.name}</span>
-              <button onClick={clearFile} className="hover:bg-primary/20 p-1 rounded-md transition-colors">
+              <button onClick={clearFile} className="hover:bg-primary/30 p-1 rounded-md transition-colors">
                 &times;
               </button>
             </div>
@@ -77,15 +101,15 @@ export default function InputSection() {
           accept="image/*,application/pdf"
         />
 
-        <div className="flex items-center justify-between mt-4 border-t border-gray-800/60 pt-4">
-          <div className="flex items-center gap-2">
-            <button onClick={() => fileInputRef.current?.click()} className="flex items-center justify-center p-2.5 rounded-lg text-textMuted hover:text-primary hover:bg-primary/10 transition-colors border border-transparent hover:border-primary/20">
+        <div className="flex items-center justify-between mt-6 border-t border-[#1A1A1A] pt-4">
+          <div className="flex items-center gap-3">
+            <button onClick={() => fileInputRef.current?.click()} className="flex items-center justify-center p-3 rounded-xl text-textMuted hover:text-primary hover:bg-primary/10 transition-colors border border-transparent hover:border-primary/20 bg-black/40">
               <Paperclip className="w-5 h-5 relative z-10" />
             </button>
-            <button onClick={() => fileInputRef.current?.click()} className="flex items-center justify-center p-2.5 rounded-lg text-textMuted hover:text-blue-400 hover:bg-blue-400/10 transition-colors border border-transparent hover:border-blue-400/20">
+            <button onClick={() => fileInputRef.current?.click()} className="flex items-center justify-center p-3 rounded-xl text-textMuted hover:text-accent hover:bg-accent/10 transition-colors border border-transparent hover:border-accent/20 bg-black/40">
               <ImageIcon className="w-5 h-5" />
             </button>
-            <button onClick={() => fileInputRef.current?.click()} className="flex items-center justify-center p-2.5 rounded-lg text-textMuted hover:text-green-400 hover:bg-green-400/10 transition-colors border border-transparent hover:border-green-400/20">
+            <button onClick={() => fileInputRef.current?.click()} className="flex items-center justify-center p-3 rounded-xl text-textMuted hover:text-green-500 hover:bg-green-500/10 transition-colors border border-transparent hover:border-green-500/20 bg-black/40">
               <FileText className="w-5 h-5" />
             </button>
           </div>
@@ -94,21 +118,22 @@ export default function InputSection() {
             onClick={handleProcess}
             disabled={(!content.trim() && !file) || isProcessing}
             className={cn(
-              "flex items-center gap-2 px-6 py-2.5 rounded-xl font-medium transition-all duration-300",
+              "flex items-center gap-3 px-8 py-3 rounded-2xl font-bold transition-all duration-500 overflow-hidden relative",
               (content.trim() || file) && !isProcessing
-                ? "bg-primary text-white hover:bg-primary/90 hover:shadow-[0_0_20px_-5px_rgba(255,107,107,0.5)] active:scale-95"
-                : "bg-surface border border-gray-700 text-gray-500 cursor-not-allowed"
+                ? "bg-gradient-to-r from-[#FF6B00] to-[#FF6B00] text-black hover:shadow-[0_0_30px_-5px_rgba(255,77,0,0.6)] active:scale-95"
+                : "bg-[#111111] border border-[#222222] text-gray-600 cursor-not-allowed"
             )}
           >
+            {isProcessing && <div className="absolute inset-0 animate-shimmer pointer-events-none" />}
             {isProcessing ? (
               <>
-                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                Processing...
+                <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin relative z-10" />
+                <span className="relative z-10">Synthesizing...</span>
               </>
             ) : (
               <>
-                <Sparkles className="w-5 h-5" />
-                Process with AI
+                <Sparkles className="w-5 h-5 relative z-10" />
+                <span className="relative z-10 tracking-wide uppercase text-sm">Process</span>
               </>
             )}
           </button>
