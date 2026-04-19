@@ -39,40 +39,7 @@ export default function LandingPage() {
       });
     }
 
-    // 3. Staggered Entrance for Bento Grid
-    if (featuresRef.current) {
-      const cards = featuresRef.current.querySelectorAll('.bento-card');
-      gsap.from(cards, {
-        scrollTrigger: {
-          trigger: featuresRef.current,
-          start: "top 75%",
-        },
-        y: 150,
-        opacity: 0,
-        scale: 0.9,
-        rotationX: 15,
-        stagger: 0.15,
-        duration: 0.8,
-        ease: "back.out(1.2)"
-      });
-    }
-
-    // 4. Staggered Entrance for Pipeline Stepper Cards
-    if (stepperRef.current) {
-      const steps = stepperRef.current.querySelectorAll('.step-card');
-      gsap.from(steps, {
-        scrollTrigger: {
-          trigger: stepperRef.current,
-          start: "top 80%",
-        },
-        y: 100,
-        opacity: 0,
-        scale: 0.8,
-        stagger: 0.2,
-        duration: 0.8,
-        ease: "power2.out"
-      });
-    }
+    // 3. Keep GSAP strictly for Hero parallax to avoid Locomotive Scroll collision on deep nested sections
 
     return () => {
       locomotiveScroll.destroy();
@@ -337,7 +304,10 @@ export default function LandingPage() {
             ].map((step, idx) => (
               <motion.div 
                 key={idx}
+                initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: true, margin: "-50px" }}
+                transition={{ delay: idx * 0.15, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 className="step-card bg-[#121212]/60 backdrop-blur-2xl border border-white/5 p-8 rounded-[2rem] flex flex-col items-center text-center group hover:bg-[#FF6B00]/5 transition-colors shadow-2xl shadow-black/50 hover:border-[#FF6B00]/30 transform-gpu"
               >
                 <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-6 shadow-inner group-hover:scale-110 group-hover:bg-[#FF6B00]/10 group-hover:border-[#FF6B00]/50 group-hover:shadow-[0_0_20px_-5px_rgba(255,107,0,0.6)] transition-all duration-500">
@@ -356,7 +326,10 @@ export default function LandingPage() {
             
             {/* Card 1 */}
             <motion.div 
+              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
               className="bento-card md:col-span-2 md:row-span-1 bg-[#121212]/60 backdrop-blur-3xl border border-white/10 border-t-[#FF6B00]/30 rounded-3xl p-8 overflow-hidden relative group hover:border-[#FF6B00]/50 hover:shadow-[0_0_30px_-5px_rgba(255,107,0,0.2)] hover:scale-[1.02] transition-all duration-300 transform-gpu"
             >
               <div className="relative z-10 w-2/3">
@@ -373,9 +346,11 @@ export default function LandingPage() {
 
             {/* Card 2 */}
             <motion.div 
+              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{ delay: 0.1 }}
-              className="bento-card md:col-span-1 md:row-span-1 bg-[#121212]/60 backdrop-blur-3xl border border-white/10 border-t-[#FF6B00]/30 rounded-3xl p-8 relative overflow-hidden group hover:border-[#FF6B00]/50 hover:shadow-[0_0_30px_-5px_rgba(255,107,0,0.2)] hover:scale-[1.02] transition-all duration-300 transform-gpu"
+              transition={{ delay: 0.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="bento-card md:col-span-1 md:row-span-1 bg-[#121212]/60 backdrop-blur-3xl border border-white/10 border-t-red-500/30 rounded-3xl p-8 flex flex-col items-center justify-center text-center group hover:border-red-500/50 hover:shadow-[0_0_30px_-5px_rgba(239,68,68,0.2)] hover:scale-[1.02] transition-all duration-300 transform-gpu"
             >
               <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center mb-4 border border-red-500/20 group-hover:shadow-[0_0_15px_rgba(239,68,68,0.6)] transition-all">
                 <Video className="w-5 h-5 text-red-400 group-hover:rotate-[15deg] transition-transform duration-300" />
@@ -390,8 +365,10 @@ export default function LandingPage() {
             {/* Card 3 */}
             <motion.div 
               id="mindmaps"
+              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
               className="bento-card md:col-span-1 md:row-span-1 bg-[#121212]/60 backdrop-blur-3xl border border-white/10 border-t-[#FF6B00]/30 rounded-3xl p-8 flex flex-col items-center justify-center text-center group hover:border-[#FF6B00]/50 hover:shadow-[0_0_30px_-5px_rgba(255,107,0,0.2)] hover:scale-[1.02] transition-all duration-300 transform-gpu"
             >
               <div className="w-16 h-16 rounded-full bg-[#FF6B00]/10 flex items-center justify-center mb-4 group-hover:shadow-[0_0_20px_rgba(255,107,0,0.6)] transition-all">
@@ -403,8 +380,10 @@ export default function LandingPage() {
 
             {/* Card 4 */}
             <motion.div 
+              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.3, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
               className="bento-card md:col-span-2 md:row-span-1 bg-[#121212]/60 backdrop-blur-3xl border border-white/10 border-t-[#FF6B00]/30 rounded-3xl p-8 relative overflow-hidden group hover:border-[#FF6B00]/50 hover:shadow-[0_0_30px_-5px_rgba(255,107,0,0.2)] hover:scale-[1.02] transition-all duration-300 transform-gpu"
             >
               <div className="flex flex-col md:flex-row items-center gap-8 h-full">
