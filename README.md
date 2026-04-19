@@ -8,7 +8,7 @@
 
 
 
-# Atlas.AI / SecondBrain 🧠🔥
+# SecondBrain 🧠🔥
 _Your Brain, Augmented._
 
 Welcome to **SecondBrain**, a cutting-edge educational intelligence dashboard engineered to eradicate the "forgetting curve." Rather than spending hours organizing rote-memorization flashcards or manually writing notes, simply feed your messy data into the SecondBrain engine and instantly unlock an interactive, Spaced-Repetition-powered learning suite.
