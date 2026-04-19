@@ -76,3 +76,11 @@ npm run dev
 ```
 
 The application will be hot-hosted on `localhost:5173`. Access the `/` Landing route, sign in, and hit the Dashboard to augment your brain!
+
+---
+
+## 📸 Screenshots
+
+![Screenshot 1](./images/Screenshot%202026-04-19%20202850.png)
+
+![Screenshot 2](./images/Screenshot%202026-04-19%20202936.png)
