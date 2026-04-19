@@ -260,7 +260,7 @@ function QuizSection({ quiz, setQuizActivity }) {
     
     setIsAnalyzing(true);
     try {
-      const response = await fetch('http://localhost:5000/analyze-quiz', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://hack-day-secondbrain-2k26-3.onrender.com'}/analyze-quiz`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ incorrectQuestions })
@@ -452,7 +452,7 @@ function ChatAssistant({ context, setChatActivity }) {
     setInputValue("");
     
     try {
-      const response = await fetch('http://localhost:5000/ask-doubt', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://hack-day-secondbrain-2k26-3.onrender.com'}/ask-doubt`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: newMessages, context })
@@ -633,7 +633,7 @@ function AILearningDNA({ quizActivity, chatActivity, explainLevel }) {
         askedQuestions: chatActivity.filter(m => m.role === 'user').map(m => m.content)
       };
 
-      const response = await fetch('http://localhost:5000/learning-dna', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://hack-day-secondbrain-2k26-3.onrender.com'}/learning-dna`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ activityData })

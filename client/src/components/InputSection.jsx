@@ -45,7 +45,7 @@ export default function InputSection() {
       if (file) formData.append('file', file);
       formData.append('explainLevel', explainLevel);
 
-      const response = await fetch('http://localhost:5000/analyze', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://hack-day-secondbrain-2k26-3.onrender.com'}/analyze`, {
         method: 'POST',
         // Note: Do not set Content-Type header manually when sending FormData,
         // the browser will set it to multipart/form-data with the correct boundary!

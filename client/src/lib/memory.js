@@ -1,6 +1,6 @@
 import { addDays } from 'date-fns';
 
-const API_URL = 'http://localhost:5000/api/memories';
+const API_URL = `${import.meta.env.VITE_API_URL || 'https://hack-day-secondbrain-2k26-3.onrender.com'}/api/memories`;
 
 export async function saveSessionToMemory(data, title = "New Study Session") {
   const now = new Date();
