@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import multer from 'multer';
 import mongoose from 'mongoose';
@@ -300,11 +301,18 @@ Identify their overall learning style, strengths, weaknesses, focus pattern (bas
 });
 
 if (process.env.NODE_ENV === 'production') {
-  const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  app.use(express.static(path.join(__dirname, '../client/dist')));
+  const clientDistPath = path.join(process.cwd(), 'client', 'dist');
+  
+  if (fs.existsSync(clientDistPath)) {
+    console.log(`[Static Route] Serving frontend from: ${clientDistPath}`);
+  } else {
+    console.error(`[Static Route Error] The directory does not exist: ${clientDistPath}`);
+  }
+
+  app.use(express.static(clientDistPath));
   
   app.get(/^\/(?!api).*/, (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../client/dist/index.html'));
+    res.sendFile(path.join(clientDistPath, 'index.html'));
   });
 }
 
