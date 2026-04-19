@@ -1,4 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import LocomotiveScroll from 'locomotive-scroll';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BrainCircuit, BookType, MonitorPlay, SpellCheck, Video, LayoutGrid, Activity, CheckCircle2, ArrowRight, Menu, X, ArrowUpRight, Copy, Zap, GraduationCap, Globe, Share2 } from 'lucide-react';
@@ -10,6 +15,71 @@ export default function LandingPage() {
   const [isDemoLoading, setIsDemoLoading] = useState(false);
   const navigate = useNavigate();
 
+  const heroRef = useRef(null);
+  const featuresRef = useRef(null);
+  const stepperRef = useRef(null);
+
+  useEffect(() => {
+    // 1. Initialize Smooth Scrolling
+    const locomotiveScroll = new LocomotiveScroll();
+
+    // 2. Complex GSAP Animation that plays on Scroll
+    if (heroRef.current) {
+      gsap.to(heroRef.current, {
+        scrollTrigger: {
+          trigger: heroRef.current,
+          start: "top top",
+          end: "bottom top",
+          scrub: 1, // Smoothly links animation progress to scroll depth
+        },
+        y: 200,
+        opacity: 0,
+        scale: 0.85,
+        filter: "blur(10px)"
+      });
+    }
+
+    // 3. Staggered Entrance for Bento Grid
+    if (featuresRef.current) {
+      const cards = featuresRef.current.querySelectorAll('.bento-card');
+      gsap.from(cards, {
+        scrollTrigger: {
+          trigger: featuresRef.current,
+          start: "top 75%",
+        },
+        y: 150,
+        opacity: 0,
+        scale: 0.9,
+        rotationX: 15,
+        stagger: 0.15,
+        duration: 0.8,
+        ease: "back.out(1.2)"
+      });
+    }
+
+    // 4. Staggered Entrance for Pipeline Stepper Cards
+    if (stepperRef.current) {
+      const steps = stepperRef.current.querySelectorAll('.step-card');
+      gsap.from(steps, {
+        scrollTrigger: {
+          trigger: stepperRef.current,
+          start: "top 80%",
+        },
+        y: 100,
+        opacity: 0,
+        scale: 0.8,
+        stagger: 0.2,
+        duration: 0.8,
+        ease: "power2.out"
+      });
+    }
+
+    return () => {
+      locomotiveScroll.destroy();
+      ScrollTrigger.getAll().forEach(t => t.kill());
+    };
+  }, []);
+
   const handleDemoSubmit = (e) => {
     e.preventDefault();
     if (!demoInput.trim()) return;
@@ -20,6 +90,17 @@ export default function LandingPage() {
     }, 1500);
   };
 
+  // Generate random particles for ambient background
+  const particles = useMemo(() => {
+    return Array.from({ length: 30 }).map(() => ({
+      width: Math.random() * 4 + 1,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      duration: Math.random() * 20 + 10,
+      delay: Math.random() * 5,
+    }));
+  }, []);
+
   return (
     <motion.div 
       initial={{ opacity: 0 }} 
@@ -29,8 +110,41 @@ export default function LandingPage() {
     >
       {/* Ambient Animated Lighting Background */}
       <div className="fixed inset-0 pointer-events-none z-0 bg-[#050505] overflow-hidden">
-        {/* Full-fill digital grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:linear-gradient(to_bottom,black_60%,transparent_100%)]"></div>
+        {/* Animated Full-fill digital grid */}
+        <motion.div 
+          animate={{ backgroundPosition: ['0px 0px', '48px 48px'] }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+          className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:linear-gradient(to_bottom,black_60%,transparent_100%)]" 
+        />
+        
+        {/* Floating Ambient Particles with GSAP Parallax capability */}
+        {particles.map((particle, i) => (
+          <motion.div 
+            key={i}
+            data-scroll
+            data-scroll-speed={particle.width * 0.5}
+            className="absolute rounded-full bg-[#FF6B00]"
+            style={{
+              width: particle.width,
+              height: particle.width,
+              left: `${particle.x}%`,
+              top: `${particle.y}%`,
+              opacity: 0.2 + (Math.random() * 0.3),
+              boxShadow: `0 0 ${particle.width * 2}px #FF6B00`
+            }}
+            animate={{ 
+              y: [0, -100, 0],
+              x: [0, Math.random() * 50 - 25, 0],
+              opacity: [0.1, 0.6, 0.1]
+            }}
+            transition={{
+              duration: particle.duration,
+              delay: particle.delay,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
         
         {/* Animated Neon Glowing Orbs */}
         <motion.div 
@@ -122,7 +236,7 @@ export default function LandingPage() {
       <main className="relative z-10 w-full pt-32 pb-20">
         
         {/* HERO SECTION */}
-        <section className="px-6 max-w-5xl mx-auto text-center flex flex-col items-center pt-20 lg:pt-32">
+        <section ref={heroRef} data-scroll-section className="px-6 max-w-5xl mx-auto text-center flex flex-col items-center pt-20 lg:pt-32">
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -182,6 +296,30 @@ export default function LandingPage() {
           </motion.div>
         </section>
 
+        {/* INFINITE NEURAL FEATURES MARQUEE */}
+        <div className="w-full relative mt-32 border-y border-white/5 bg-[#121212]/30 py-6 overflow-hidden flex items-center shadow-2xl">
+          {/* Gradient masking for smooth fade out on edges */}
+          <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[#050505] to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#050505] to-transparent z-10 pointer-events-none" />
+          
+          <motion.div 
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+            className="flex w-max whitespace-nowrap items-center gap-16"
+          >
+            {[...Array(2)].map((_, i) => (
+               <React.Fragment key={i}>
+                 <div className="flex items-center gap-3 text-gray-500 font-bold tracking-widest text-sm uppercase"><BrainCircuit className="w-4 h-4 text-[#FF6B00]"/> Gemini 1.5 Architecture</div>
+                 <div className="flex items-center gap-3 text-gray-500 font-bold tracking-widest text-sm uppercase"><Activity className="w-4 h-4 text-[#FF6B00]"/> Spaced Repetition Engine</div>
+                 <div className="flex items-center gap-3 text-gray-500 font-bold tracking-widest text-sm uppercase"><Video className="w-4 h-4 text-[#FF6B00]"/> Seamless YouTube Distillation</div>
+                 <div className="flex items-center gap-3 text-gray-500 font-bold tracking-widest text-sm uppercase"><SpellCheck className="w-4 h-4 text-[#FF6B00]"/> 100-Page PDF Parser</div>
+                 <div className="flex items-center gap-3 text-gray-500 font-bold tracking-widest text-sm uppercase"><GraduationCap className="w-4 h-4 text-[#FF6B00]"/> Dynamic 3D Flashcards</div>
+                 <div className="flex items-center gap-3 text-gray-500 font-bold tracking-widest text-sm uppercase"><LayoutGrid className="w-4 h-4 text-[#FF6B00]"/> Node Tree Mindmapping</div>
+               </React.Fragment>
+            ))}
+          </motion.div>
+        </div>
+
         {/* SECTION 2: HOW IT WORKS STEPPER */}
         <section id="how-it-works" className="px-6 max-w-6xl mx-auto mt-40">
           <div className="text-center mb-16">
@@ -189,7 +327,7 @@ export default function LandingPage() {
             <p className="text-gray-400 font-medium">A frictionless pipeline converting raw data into permanent memory.</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 relative">
+          <div ref={stepperRef} className="grid md:grid-cols-3 gap-8 relative perspective-1000">
             <div className="hidden md:block absolute top-1/2 left-0 w-full h-[1px] bg-gradient-to-r from-white/5 via-[#FF6B00]/20 to-white/5 -z-10" />
             
             {[ 
@@ -199,11 +337,8 @@ export default function LandingPage() {
             ].map((step, idx) => (
               <motion.div 
                 key={idx}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5, delay: idx * 0.2 }}
-                className="bg-[#121212]/60 backdrop-blur-2xl border border-white/5 p-8 rounded-[2rem] flex flex-col items-center text-center group hover:bg-[#FF6B00]/5 transition-colors shadow-2xl shadow-black/50 hover:border-[#FF6B00]/30"
+                className="step-card bg-[#121212]/60 backdrop-blur-2xl border border-white/5 p-8 rounded-[2rem] flex flex-col items-center text-center group hover:bg-[#FF6B00]/5 transition-colors shadow-2xl shadow-black/50 hover:border-[#FF6B00]/30 transform-gpu"
               >
                 <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-6 shadow-inner group-hover:scale-110 group-hover:bg-[#FF6B00]/10 group-hover:border-[#FF6B00]/50 group-hover:shadow-[0_0_20px_-5px_rgba(255,107,0,0.6)] transition-all duration-500">
                   <step.icon className="w-8 h-8 text-white group-hover:text-[#FF6B00] transition-colors" />
@@ -216,15 +351,13 @@ export default function LandingPage() {
         </section>
 
         {/* SECTION 3: BENTO GRID FEATURES */}
-        <section id="features" className="px-6 max-w-6xl mx-auto mt-40">
-          <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-6 h-auto md:h-[600px]">
+        <section id="features" ref={featuresRef} className="px-6 max-w-6xl mx-auto mt-40">
+          <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-6 h-auto md:h-[600px] perspective-1000">
             
             {/* Card 1 */}
             <motion.div 
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
-              className="md:col-span-2 md:row-span-1 bg-[#121212]/60 backdrop-blur-3xl border border-white/10 border-t-[#FF6B00]/30 rounded-3xl p-8 overflow-hidden relative group hover:border-[#FF6B00]/50 hover:shadow-[0_0_30px_-5px_rgba(255,107,0,0.2)] hover:scale-[1.02] transition-all duration-300"
+              className="bento-card md:col-span-2 md:row-span-1 bg-[#121212]/60 backdrop-blur-3xl border border-white/10 border-t-[#FF6B00]/30 rounded-3xl p-8 overflow-hidden relative group hover:border-[#FF6B00]/50 hover:shadow-[0_0_30px_-5px_rgba(255,107,0,0.2)] hover:scale-[1.02] transition-all duration-300 transform-gpu"
             >
               <div className="relative z-10 w-2/3">
                 <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center mb-4 border border-blue-500/20 group-hover:shadow-[0_0_15px_rgba(59,130,246,0.6)] transition-all">
@@ -240,11 +373,9 @@ export default function LandingPage() {
 
             {/* Card 2 */}
             <motion.div 
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: 0.1 }}
-              className="md:col-span-1 md:row-span-1 bg-[#121212]/60 backdrop-blur-3xl border border-white/10 border-t-[#FF6B00]/30 rounded-3xl p-8 relative overflow-hidden group hover:border-[#FF6B00]/50 hover:shadow-[0_0_30px_-5px_rgba(255,107,0,0.2)] hover:scale-[1.02] transition-all duration-300"
+              className="bento-card md:col-span-1 md:row-span-1 bg-[#121212]/60 backdrop-blur-3xl border border-white/10 border-t-[#FF6B00]/30 rounded-3xl p-8 relative overflow-hidden group hover:border-[#FF6B00]/50 hover:shadow-[0_0_30px_-5px_rgba(255,107,0,0.2)] hover:scale-[1.02] transition-all duration-300 transform-gpu"
             >
               <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center mb-4 border border-red-500/20 group-hover:shadow-[0_0_15px_rgba(239,68,68,0.6)] transition-all">
                 <Video className="w-5 h-5 text-red-400 group-hover:rotate-[15deg] transition-transform duration-300" />
@@ -259,11 +390,9 @@ export default function LandingPage() {
             {/* Card 3 */}
             <motion.div 
               id="mindmaps"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: 0.2 }}
-              className="md:col-span-1 md:row-span-1 bg-[#121212]/60 backdrop-blur-3xl border border-white/10 border-t-[#FF6B00]/30 rounded-3xl p-8 flex flex-col items-center justify-center text-center group hover:border-[#FF6B00]/50 hover:shadow-[0_0_30px_-5px_rgba(255,107,0,0.2)] hover:scale-[1.02] transition-all duration-300"
+              className="bento-card md:col-span-1 md:row-span-1 bg-[#121212]/60 backdrop-blur-3xl border border-white/10 border-t-[#FF6B00]/30 rounded-3xl p-8 flex flex-col items-center justify-center text-center group hover:border-[#FF6B00]/50 hover:shadow-[0_0_30px_-5px_rgba(255,107,0,0.2)] hover:scale-[1.02] transition-all duration-300 transform-gpu"
             >
               <div className="w-16 h-16 rounded-full bg-[#FF6B00]/10 flex items-center justify-center mb-4 group-hover:shadow-[0_0_20px_rgba(255,107,0,0.6)] transition-all">
                 <LayoutGrid className="w-8 h-8 text-[#FF6B00] group-hover:rotate-[15deg] transition-transform duration-300" />
@@ -274,11 +403,9 @@ export default function LandingPage() {
 
             {/* Card 4 */}
             <motion.div 
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: 0.3 }}
-              className="md:col-span-2 md:row-span-1 bg-[#121212]/60 backdrop-blur-3xl border border-white/10 border-t-[#FF6B00]/30 rounded-3xl p-8 relative overflow-hidden group hover:border-[#FF6B00]/50 hover:shadow-[0_0_30px_-5px_rgba(255,107,0,0.2)] hover:scale-[1.02] transition-all duration-300"
+              className="bento-card md:col-span-2 md:row-span-1 bg-[#121212]/60 backdrop-blur-3xl border border-white/10 border-t-[#FF6B00]/30 rounded-3xl p-8 relative overflow-hidden group hover:border-[#FF6B00]/50 hover:shadow-[0_0_30px_-5px_rgba(255,107,0,0.2)] hover:scale-[1.02] transition-all duration-300 transform-gpu"
             >
               <div className="flex flex-col md:flex-row items-center gap-8 h-full">
                 <div className="flex-1">
@@ -385,37 +512,55 @@ export default function LandingPage() {
       </main>
 
       {/* FOOTER */}
-      <footer className="relative z-10 w-full border-t border-white/5 bg-[#050505]/60 backdrop-blur-xl px-6 py-12 md:py-20 mt-20">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
-          <div className="col-span-2">
-            <Link to="/" className="flex items-center gap-3 font-bold text-xl tracking-wide mb-6">
-              <BrainCircuit className="w-5 h-5 text-[#FF6B00]" />
-              SecondBrain
-            </Link>
-            <p className="text-gray-400 max-w-xs text-sm leading-relaxed mb-6 font-medium">
-              Engineered by hackers. The supreme AI-augmented memory core for students and researchers.
+      <footer className="relative z-10 w-full border-t border-white/5 bg-[#050505] pt-20 pb-10 mt-32 overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#FF6B00]/50 to-transparent" />
+        
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col items-center text-center mb-24">
+            <h2 className="text-4xl md:text-6xl font-bold mb-6 tracking-tighter">Ready to Augment?</h2>
+            <p className="text-gray-400 text-lg mb-8 max-w-xl">
+              Join thousands of researchers and students building their ultimate second brain. No credit card required.
             </p>
-            <div className="flex items-center gap-4 text-gray-400">
-              <a href="#" className="hover:text-white transition-colors"><Share2 className="w-5 h-5"/></a>
-              <a href="#" className="hover:text-white transition-colors"><Globe className="w-5 h-5"/></a>
+            <Link to="/signup" className="px-8 py-4 bg-[#FF6B00] text-black font-bold uppercase tracking-wider text-sm transition-all hover:bg-white flex items-center justify-center gap-2 transform-gpu">
+              INITIALIZE CORE <ArrowUpRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-12 border-t border-white/10 pt-16">
+            <div className="col-span-2">
+              <Link to="/" className="font-extrabold text-3xl tracking-tighter text-white uppercase mb-6 inline-block">
+                ATLAS.AI
+              </Link>
+              <p className="text-gray-500 max-w-xs text-sm leading-relaxed mb-6 font-medium">
+                Engineered by hackers. The supreme AI-augmented memory core for students and researchers.
+              </p>
+              <div className="flex items-center gap-4 text-gray-400">
+                <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#FF6B00] hover:text-black transition-colors"><Share2 className="w-4 h-4"/></a>
+                <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#FF6B00] hover:text-black transition-colors"><Globe className="w-4 h-4"/></a>
+              </div>
+            </div>
+            
+            <div>
+              <h4 className="font-bold text-white mb-6 uppercase tracking-widest text-xs">Platform</h4>
+              <ul className="space-y-4 text-sm text-gray-500 font-medium">
+                <li><a href="#how-it-works" className="hover:text-[#FF6B00] transition-colors">Pipeline</a></li>
+                <li><a href="#features" className="hover:text-[#FF6B00] transition-colors">Neural Features</a></li>
+                <li><a href="#dataviz" className="hover:text-[#FF6B00] transition-colors">Memory Graph</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-bold text-white mb-6 uppercase tracking-widest text-xs">Legal</h4>
+              <ul className="space-y-4 text-sm text-gray-500 font-medium">
+                <li><a href="#" className="hover:text-white transition-colors">Privacy Database</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Enterprise API</a></li>
+              </ul>
             </div>
           </div>
           
-          <div>
-            <h4 className="font-bold text-white mb-6 tracking-wide">Product</h4>
-            <ul className="space-y-4 text-sm text-gray-400 font-medium">
-              <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">API</a></li>
-            </ul>
-          </div>
-          
-          <div>
-            <h4 className="font-bold text-white mb-6 tracking-wide">Legal</h4>
-            <ul className="space-y-4 text-sm text-gray-400 font-medium">
-              <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
-            </ul>
+          <div className="mt-20 text-center text-xs text-gray-600 font-bold tracking-widest uppercase">
+            © {new Date().getFullYear()} ATLAS.AI Cognitive Systems. All rights reserved.
           </div>
         </div>
       </footer>
