@@ -14,18 +14,29 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Health Check Route for Render
+app.get('/health', (req, res) => res.status(200).send('OK'));
+
 // Setup Multer for Memory Storage
 const upload = multer({ storage: multer.memoryStorage() });
 
 const PORT = process.env.PORT || 5000;
 
 // Connect to MongoDB
+if (!process.env.MONGODB_URI) {
+  console.error("FATAL ERROR: MONGODB_URI is not defined.");
+  process.exit(1);
+}
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('MongoDB cluster connected successfully'))
   .catch(err => console.error('MongoDB connection error:', err));
 
 // Initialize Gemini API
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "YOUR_API_KEY");
+if (!process.env.GEMINI_API_KEY) {
+  console.error("FATAL ERROR: GEMINI_API_KEY is not defined.");
+  process.exit(1);
+}
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 app.post('/analyze', upload.single('file'), async (req, res) => {
   try {
@@ -46,7 +57,7 @@ app.post('/analyze', upload.single('file'), async (req, res) => {
 
     // Determine the model
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
+      model: "gemini-1.5-flash",
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -176,7 +187,7 @@ app.post('/analyze-quiz', async (req, res) => {
     }
 
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
+      model: "gemini-1.5-flash",
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -217,7 +228,7 @@ app.post('/ask-doubt', async (req, res) => {
       return res.status(400).json({ error: 'Message history is required' });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     
     const formattedHistory = messages.slice(0, -1).map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`).join('\n');
     const currentQuestion = messages[messages.length - 1].content;
@@ -254,7 +265,7 @@ app.post('/learning-dna', async (req, res) => {
     }
 
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
+      model: "gemini-1.5-flash",
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -292,8 +303,8 @@ if (process.env.NODE_ENV === 'production') {
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
   app.use(express.static(path.join(__dirname, '../client/dist')));
   
-  app.get('/:path*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+  app.get(/^\/(?!api).*/, (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../client/dist/index.html'));
   });
 }
 
